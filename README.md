@@ -35,3 +35,9 @@ Adafruit QT Py SAMD21 [#4600](https://www.adafruit.com/product/4600).
 ### Low-side Switch
 
 5-36V 15A N-channel MOSFET on [Amzn](https://smile.amazon.com/dp/B07XJSRY6B).
+
+## Schematic
+
+The following wiring diagram has been put forth. The microcontroller (IC) pinouts are not particularly cromulent.
+
+![schematic](assets/schematic.png)

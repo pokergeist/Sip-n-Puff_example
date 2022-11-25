@@ -16,7 +16,7 @@
  ****************************************************************************/
 
 // include library code
-// #include <Wire.h>
+#include <Wire.h>
 #include "Adafruit_MPRLS.h"
 
 // You dont *need* a reset and EOC pin for most uses, so we set to -1 and don't connect
@@ -41,17 +41,18 @@ float average_air_pressure_hPa; // this will be set automatically or you could s
 float pressure_hPa;             // holds the pressure readings
 
 // track the state of the actuator
-bool actuator_on = false;       // tracks the state of the actuator
+bool actuator_on = false;
 
 // safety lockout stuff
 #define MAX_TIME_ON_S   25      // max ON time in seconds
 uint32_t lockout_time;          // lockout at this time (millis())
 bool LOCKOUT_ON = false;        // safety lockout in effect
 
-// setup() runs once before everything else
 
+// setup() runs once before everything else
+ 
 void setup() {
-  // set the pin director and level
+  // set the pin direction and level
   pinMode(ACTUATOR_OUT_PIN, OUTPUT);
   digitalWrite(ACTUATOR_OUT_PIN, LOW);
 
@@ -65,7 +66,7 @@ void setup() {
     Serial.println("Failed to communicate with MPRLS sensor, check wiring?");
     delay(30e3); // wait 30 seconds (30,000 ms) and try again
   }
-  
+
   // all set
   Serial.println("MPRLS sensor READY!");
   set_avg_pressure(); // set the baseline pressure if not assigned above

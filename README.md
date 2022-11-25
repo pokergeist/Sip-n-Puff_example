@@ -18,6 +18,10 @@ The Sip-n-Puff.ino code is heavily commented. Start there.
 | :--------: | ------------------------------------- |
 | 2022-11-25 | It compiles. No Neopixel support yet. |
 
+## Code Instructions
+
+Copy the Sip-n-Puff directory into your Arduino directory (usually in My Documents). Open in the Arduino IDE.
+
 ## Components Under Consideration
 
 ### Pressure Sensor

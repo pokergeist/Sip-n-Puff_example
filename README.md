@@ -8,9 +8,11 @@ This repos exists for the sole purpose of helping a new user jumpstart his Assis
 
 [ATMakers.org](http://www.ATMakers.org) and the "ATMakers - Makers and Users" Facebook group.
 
+Please see the videos linked to in the Summary box on this Thingiverse [post](https://www.thingiverse.com/thing:3458117).
+
 ## Remarks
 
-The Sip-n-Puff.ino code is heavily commented. Start there.
+The Sip-n-Puff.ino [code](Sip-n-Puff/Sip-n-Puff.ino) is heavily commented. Start there.
 
 ## Status
 

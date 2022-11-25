@@ -22,7 +22,7 @@ The Sip-n-Puff.ino code is heavily commented. Start there.
 
 Copy the Sip-n-Puff directory into your Arduino directory (usually in My Documents). Open in the Arduino IDE.
 
-## Components Under Consideration
+## Proposed Components
 
 ### Pressure Sensor
 
@@ -35,6 +35,10 @@ Adafruit QT Py SAMD21 [#4600](https://www.adafruit.com/product/4600).
 ### Low-side Switch
 
 5-36V 15A N-channel MOSFET on [Amzn](https://smile.amazon.com/dp/B07XJSRY6B).
+
+### Solenoid
+
+12V 0.3A 10mm stroke 4N [Amzn](https://www.amazon.com/dp/B07Z3HYDBV)
 
 ## Schematic
 

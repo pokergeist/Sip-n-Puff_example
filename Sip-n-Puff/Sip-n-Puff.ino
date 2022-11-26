@@ -4,18 +4,20 @@
  * Modified MPRLS simpletest.ino example
  */
  
- /*
-  ******  STATUS: Compiles but untested.  ******
-  */
+/*
+ ******  STATUS: Tested with both drivers with the Adafruit sensor. ******
+ */
 
 /****************************************************************************
- * This example demostrates how to turn an actuator on and off via a Digital
+ * This example demostrates how to turn a device on and off via a Digital
  * I/O pin. Puff to turn on, Sip to turn off.
  *
  * There's a safety lockout that engages if the actuator is on for more than
  * MAX_TIME_ON_S seconds. You have to reset the micro to clear the lockout.
+ * It could clear after some cool-off period but if there's a fault we
+ * don't want it turning on repeatedly.
  *
- * You may want to set a timer to turn off the actuator. Or not - I don't
+ * You may want to set a timer to turn the actuator off. Or not - I don't
  * know what the application is.
  ****************************************************************************/
 
@@ -23,7 +25,7 @@
 #include <Wire.h>
 #include <Adafruit_NeoPixel.h>
 
-// Set to ADAFRUIT or SPARKFUN (or anything else really)
+// set to ADAFRUIT or SPARKFUN (or anything else really)
 #define SENSOR_VENDOR SPARKFUN
 
 #if SENSOR_VENDOR == ADAFRUIT
@@ -51,10 +53,10 @@ SparkFun_MicroPressure mpr = SparkFun_MicroPressure();
 Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL);
 
 // define some colors
-#define RGB_RED       255,0,0
-#define RGB_GREEN     0,255,0
-#define RGB_BLUE      0,0,255
-#define RGB_YELLOW    255,255,0
+#define RGB_RED     255,0,0
+#define RGB_GREEN   0,255,0
+#define RGB_BLUE    0,0,255
+#define RGB_YELLOW  255,255,0
 
 /* Set the pin you want to use to connect to the actuator switching device.
  * With a normal micro you can just use LED_BUILTIN to test with the built-in LED.
@@ -63,9 +65,10 @@ Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL);
  */
 #define ACTUATOR_OUT_PIN 0
 
-// set some pressure thresholds: +/-5% - you'll probably want to change these
-#define LOW_PRES_MULT 0.95
-#define HI_PRES_MULT  1.05
+// set some pressure thresholds: +/-1%
+#define PRES_OFFSET   0.01
+#define LOW_PRES_MULT (1.0 - PRES_OFFSET)
+#define HI_PRES_MULT  (1.0 + PRES_OFFSET)
 
 float average_air_pressure_hPa; // this will be set automatically or you could set it here (use hPA!, not PSI)
 float pressure_hPa;             // holds the pressure readings
@@ -74,7 +77,7 @@ float pressure_hPa;             // holds the pressure readings
 bool actuator_on = false;
 
 // safety lockout stuff
-#define MAX_TIME_ON_S   25      // max ON time in seconds
+#define MAX_TIME_ON_S   25      // max ON time in seconds per actuator datasheet
 uint32_t lockout_time;          // lockout at this time (millis())
 bool LOCKOUT_ON = false;        // safety lockout in effect
 
@@ -86,8 +89,8 @@ void setup() {
   pinMode(ACTUATOR_OUT_PIN, OUTPUT);
   digitalWrite(ACTUATOR_OUT_PIN, LOW);
   
-  // create a pixel strand with 1 pixel on PIN_NEOPIXEL
-  Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL);
+  // init Neopixel, clear if reset
+  pixels.begin();
   pixels.clear();
   pixels.show();
 
@@ -96,7 +99,6 @@ void setup() {
   while (not Serial); // we'll wait forever for you to open the Serial Consiole window from the Arduino IDE
 
   // Connect to the sensor
-  Serial.println("MPRLS Simple Test");  // print a line out to the console
   while (not mpr.begin()) { // begin() "initializes" or starts up the sensor
     Serial.println("Failed to communicate with MPRLS sensor, check wiring?");
     delay(30e3); // wait 30 seconds (30,000 ms) and try again
@@ -117,13 +119,18 @@ void setup() {
 void loop() {
   // see if safety lockout is in effect
   if (LOCKOUT_ON) { // locked out - hang out for 10s the return ... ... ...
-    delay (10e3);
+    turn_LED_off();
+    delay(250); // blink off 250ms
+    turn_LED_on(pixels.Color(RGB_YELLOW));
+    delay (1500);
     return;
   }
   // see if we've timed out
   if (actuator_on and (millis() > lockout_time)) {
     turn_actuator_off();
     LOCKOUT_ON = true;
+    turn_LED_off();
+    delay(250); // blink off 250ms
     turn_LED_on(pixels.Color(RGB_YELLOW));
     Serial.println("ERROR: ON time exceeded - SAFETY LOCKOUT in effect.");
     Serial.println("       Reset to restore operation.");
@@ -136,9 +143,14 @@ void loop() {
   } else if (pressure_hPa < average_air_pressure_hPa * LOW_PRES_MULT) {
     turn_actuator_off();
   }
-}
+  delay(200);   // reduce this value to make it more responsive (but more "still on" prints)
+} // loop()
 
 void turn_actuator_on(void) {
+  if (actuator_on) {
+    Serial.println("Actuator still ON");
+    return;
+  }
   Serial.println("Turning actuator ON!");
   delay(500); // wait 1/2 sec
   turn_LED_on(pixels.Color(RGB_GREEN));
@@ -153,6 +165,7 @@ void turn_actuator_off(void) {
   turn_LED_on(pixels.Color(RGB_RED));
   Serial.println("Actuator off");
   delay(1e3); // show LED for 1 sec
+  turn_LED_off();
 }
 
 void turn_LED_on(uint32_t color) {
@@ -171,8 +184,8 @@ void turn_LED_off() {
  */
 void set_avg_pressure (void) {
   // prompt the user to release pressure in tube
-  Serial.println("Reading baseline pressure in 5 seconds - release pressure tube.");
-  delay(5e3); // wait 5 secs
+  Serial.println("Reading baseline pressure in 3 seconds - release pressure tube.");
+  delay(3e3); // wait 3 secs
   int num_reads = 5;
   float pressure_sum = 0;
   for (int i=0 ; i<num_reads ; i++) {

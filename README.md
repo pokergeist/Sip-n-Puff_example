@@ -16,14 +16,13 @@ The Sip-n-Puff.ino [code](Sip-n-Puff/Sip-n-Puff.ino) is heavily commented. Start
 
 In converging the sensor code SparkFun defaults to PSI and won't convert to hPa. Adafruit can readPressure() in PSI by default if the last parameter (in a long list of defaults) in the the constructor is 1. Not worth the trouble since I think the SparkFun module will be selected. Then we'll just go with PSI everywhere and be done with it.
 
-The QT Py micro has been selected. I'll drop in Neopixel LED code tomorrow that will aid in testing.
-
 ## Status
 
-|    Date    | Status                                                     |
-| :--------: | ---------------------------------------------------------- |
-| 2022-11-25 | Added support for the SparkFun MicroPressure Qwiic sensor. |
-| 2022-11-25 | It compiles. No Neopixel support yet.                      |
+|    Date    | Status                                                       |
+| :--------: | ------------------------------------------------------------ |
+| 2022-11-26 | Added Neopixel code.                                         |
+| 2022-11-25 | Added support for the SparkFun MicroPressure (Qwiic) sensor. |
+| 2022-11-25 | It compiles. No Neopixel support yet.                        |
 
 ## Code Instructions
 
@@ -37,7 +36,7 @@ Adafruit MPRLS Pressure Sensor [#3965](https://www.adafruit.com/product/3965) or
 
 ### Microcontroller
 
-Adafruit QT Py SAMD21 [#4600](https://www.adafruit.com/product/4600).
+Adafruit QT Py SAMD21 [#4600](https://www.adafruit.com/product/4600). **SELECTED**
 
 ### Low-side Switch
 

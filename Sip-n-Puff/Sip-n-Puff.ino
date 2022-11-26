@@ -3,6 +3,10 @@
  *
  * Modified MPRLS simpletest.ino example
  */
+ 
+ /*
+  ******  STATUS: Compiles but untested.  ******
+  */
 
 /****************************************************************************
  * This example demostrates how to turn an actuator on and off via a Digital
@@ -17,8 +21,9 @@
 
 // include library code
 #include <Wire.h>
+#include <Adafruit_NeoPixel.h>
 
-// set to ADAFRUIT or SPARKFUN (or anything else really)
+// Set to ADAFRUIT or SPARKFUN (or anything else really)
 #define SENSOR_VENDOR SPARKFUN
 
 #if SENSOR_VENDOR == ADAFRUIT
@@ -41,6 +46,15 @@ Adafruit_MPRLS mpr = Adafruit_MPRLS(RESET_PIN, EOC_PIN);
 #else
 SparkFun_MicroPressure mpr = SparkFun_MicroPressure();
 #endif
+
+// create a pixel strand with 1 pixel on PIN_NEOPIXEL
+Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL);
+
+// define some colors
+#define RGB_RED       255,0,0
+#define RGB_GREEN     0,255,0
+#define RGB_BLUE      0,0,255
+#define RGB_YELLOW    255,255,0
 
 /* Set the pin you want to use to connect to the actuator switching device.
  * With a normal micro you can just use LED_BUILTIN to test with the built-in LED.
@@ -71,6 +85,11 @@ void setup() {
   // set the pin direction and level
   pinMode(ACTUATOR_OUT_PIN, OUTPUT);
   digitalWrite(ACTUATOR_OUT_PIN, LOW);
+  
+  // create a pixel strand with 1 pixel on PIN_NEOPIXEL
+  Adafruit_NeoPixel pixels(1, PIN_NEOPIXEL);
+  pixels.clear();
+  pixels.show();
 
   // Start the console. Any speed will work the same since it's USB.
   Serial.begin(9600);
@@ -105,6 +124,7 @@ void loop() {
   if (actuator_on and (millis() > lockout_time)) {
     turn_actuator_off();
     LOCKOUT_ON = true;
+    turn_LED_on(pixels.Color(RGB_YELLOW));
     Serial.println("ERROR: ON time exceeded - SAFETY LOCKOUT in effect.");
     Serial.println("       Reset to restore operation.");
     return;
@@ -121,6 +141,7 @@ void loop() {
 void turn_actuator_on(void) {
   Serial.println("Turning actuator ON!");
   delay(500); // wait 1/2 sec
+  turn_LED_on(pixels.Color(RGB_GREEN));
   digitalWrite(ACTUATOR_OUT_PIN, HIGH);
   actuator_on = true;
   lockout_time = millis() + MAX_TIME_ON_S * 1000;
@@ -129,7 +150,19 @@ void turn_actuator_on(void) {
 void turn_actuator_off(void) {
   digitalWrite(ACTUATOR_OUT_PIN, LOW);
   actuator_on = false;
+  turn_LED_on(pixels.Color(RGB_RED));
   Serial.println("Actuator off");
+  delay(1e3); // show LED for 1 sec
+}
+
+void turn_LED_on(uint32_t color) {
+  pixels.setPixelColor(0, color);
+  pixels.show();
+}
+
+void turn_LED_off() {
+  pixels.clear();
+  pixels.show();
 }
 
 /*

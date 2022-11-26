@@ -17,14 +17,30 @@
 
 // include library code
 #include <Wire.h>
-#include "Adafruit_MPRLS.h"
+
+// set to ADAFRUIT or SPARKFUN (or anything else really)
+#define SENSOR_VENDOR SPARKFUN
+
+#if SENSOR_VENDOR == ADAFRUIT
+  #include <Adafruit_MPRLS.h>
+  #define HPA_CONVERSION 1
+  #define UNITS
+#else
+  #include <SparkFun_MicroPressure.h>
+  #define HPA_CONVERSION 10.0
+  #define UNITS KPA
+#endif
 
 // You dont *need* a reset and EOC pin for most uses, so we set to -1 and don't connect
 #define RESET_PIN  -1  // set to any GPIO pin # to hard-reset on begin()
 #define EOC_PIN    -1  // set to any GPIO pin to read end-of-conversion by pin
 
 // this creates an object ("mpr") that embodies the code used to read the pressure sensor
+#if SENSOR_VENDOR == ADAFRUIT
 Adafruit_MPRLS mpr = Adafruit_MPRLS(RESET_PIN, EOC_PIN);
+#else
+SparkFun_MicroPressure mpr = SparkFun_MicroPressure();
+#endif
 
 /* Set the pin you want to use to connect to the actuator switching device.
  * With a normal micro you can just use LED_BUILTIN to test with the built-in LED.
@@ -94,7 +110,7 @@ void loop() {
     return;
   }
   // normal operation
-  pressure_hPa = mpr.readPressure();  // read the pressure
+  pressure_hPa = mpr.readPressure(UNITS) * HPA_CONVERSION;  // read the pressure
   if (pressure_hPa > average_air_pressure_hPa * HI_PRES_MULT) {
     turn_actuator_on();
   } else if (pressure_hPa < average_air_pressure_hPa * LOW_PRES_MULT) {
@@ -127,7 +143,7 @@ void set_avg_pressure (void) {
   int num_reads = 5;
   float pressure_sum = 0;
   for (int i=0 ; i<num_reads ; i++) {
-    pressure_hPa = mpr.readPressure();  // read the pressure
+    pressure_hPa = mpr.readPressure(UNITS) * HPA_CONVERSION;  // read the pressure
     pressure_sum += pressure_hPa; // sum the readings to be averaged later
     Serial.print("Pressure (PSI): "); Serial.println(pressure_hPa / 68.947572932);
     delay(1e3); // loop in 1 sec

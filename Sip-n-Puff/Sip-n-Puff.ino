@@ -3,7 +3,7 @@
  *
  * Modified MPRLS simpletest.ino example
  */
- 
+
 /*
  ******  STATUS: Tested with both drivers with the Adafruit sensor. ******
  */
@@ -83,12 +83,12 @@ bool LOCKOUT_ON = false;        // safety lockout in effect
 
 
 // setup() runs once before everything else
- 
+
 void setup() {
   // set the pin direction and level
   pinMode(ACTUATOR_OUT_PIN, OUTPUT);
   digitalWrite(ACTUATOR_OUT_PIN, LOW);
-  
+
   // init Neopixel, clear if reset
   pixels.begin();
   pixels.clear();
@@ -129,8 +129,6 @@ void loop() {
   if (actuator_on and (millis() > lockout_time)) {
     turn_actuator_off();
     LOCKOUT_ON = true;
-    turn_LED_off();
-    delay(250); // blink off 250ms
     turn_LED_on(pixels.Color(RGB_YELLOW));
     Serial.println("ERROR: ON time exceeded - SAFETY LOCKOUT in effect.");
     Serial.println("       Reset to restore operation.");
